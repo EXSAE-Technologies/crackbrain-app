@@ -1,20 +1,55 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+// In App.js in a new project
 
-export default function App() {
+import * as React from 'react';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { HomeScreen } from './components/Home';
+import { ProjectsScreen } from './components/Projects';
+import { ProfileScreen } from './components/Profile';
+import { AboutScreen } from './components/About';
+
+import {
+  NavigationContainer,
+  DarkTheme as NavigationDarkTheme,
+  DefaultTheme as NavigationDefaultTheme,
+} from '@react-navigation/native';
+import {
+  DarkTheme as PaperDarkTheme,
+  DefaultTheme as PaperDefaultTheme,
+  Provider as PaperProvider,
+} from 'react-native-paper';
+
+const CombinedDefaultTheme = {
+  ...PaperDefaultTheme,
+  ...NavigationDefaultTheme,
+  colors: {
+    ...PaperDefaultTheme.colors,
+    ...NavigationDefaultTheme.colors,
+  },
+};
+const CombinedDarkTheme = {
+  ...PaperDarkTheme,
+  ...NavigationDarkTheme,
+  colors: {
+    ...PaperDarkTheme.colors,
+    ...NavigationDarkTheme.colors,
+  },
+};
+
+const Stack = createNativeStackNavigator();
+
+function App() {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <PaperProvider theme={CombinedDefaultTheme}>
+      <NavigationContainer theme={CombinedDefaultTheme}>
+        <Stack.Navigator initialRouteName='Profile'>
+          <Stack.Screen name="Home" component={HomeScreen} />
+          <Stack.Screen name="Profile" component={ProfileScreen} />
+          <Stack.Screen name="Projects" component={ProjectsScreen} />
+          <Stack.Screen name="About" component={AboutScreen} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </PaperProvider>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default App;
