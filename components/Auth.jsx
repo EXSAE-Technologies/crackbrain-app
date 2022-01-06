@@ -1,7 +1,7 @@
 import * as React from "react";
 import { View } from "react-native";
-import { Button, Card, TextInput } from "react-native-paper";
-import { ButtonMenu } from "./Widgets";
+import { Button, Card, Snackbar, TextInput } from "react-native-paper";
+import { ButtonMenu,Snack } from "./Widgets";
 import { baseUrl, styles } from "./Services";
 
 export function SignupScreen({navigation}){
@@ -10,7 +10,28 @@ export function SignupScreen({navigation}){
         email:"",
         password:""
     });
-    const [res, setRes] = React.useState({loading:false})
+    const [res, setRes] = React.useState({loading:false});
+    const [nots, setNots] = React.useState([])
+
+    const handleResponse = (json) => {
+        let anots = new Array();
+        if("success" in json){
+            if(json.success){
+                anots.push(<Snackbar>{json.message}</Snackbar>);
+            } else {
+                console.log(json);
+            }
+            setNots(anots);
+        } else {
+            let anots = new Array();
+            let count = 0;
+            for(const property in json){
+                anots.push(<Snack key={count} index={count} message={json[property][0]} />);
+                count = count + 1;
+            }
+            setNots(anots);
+        }
+    }
 
     const signup = () => {
         setRes({loading:true});
@@ -22,8 +43,10 @@ export function SignupScreen({navigation}){
             email:form.email,
             password:form.password
         })});
-        fetch(request).then((response)=>response.json()).then((json)=>{
-            console.log(json)
+        fetch(request).then((response)=>{
+            return response.json();
+        }).then((json)=>{
+            handleResponse(json);
         }).catch((error)=>console.log(error)).finally(setRes({loading:false}));
     }
 
@@ -56,6 +79,7 @@ export function SignupScreen({navigation}){
                     <Button onPress={()=>{navigation.navigate("Login")}}>Have an account? Login</Button>
                 </Card.Actions>
             </Card>
+            {nots ? nots : null }
             <ButtonMenu navigation={navigation} />
         </View>
     );
