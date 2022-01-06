@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Provider,Portal,FAB } from 'react-native-paper';
+import { Provider,Portal,FAB, Snackbar } from 'react-native-paper';
 
 export function ButtonMenu({navigation}){
     const [open,setOpen] = React.useState(false);
@@ -17,7 +17,7 @@ export function ButtonMenu({navigation}){
                             onPress: () => {navigation.navigate("Projects")}
                         },
                         {
-                            icon:"plus",
+                            icon:"information-outline",
                             label:"About",
                             onPress: () => {navigation.navigate("About")}
                         }
@@ -26,4 +26,23 @@ export function ButtonMenu({navigation}){
             </Portal>
         </Provider>
     )
+}
+
+export function Snack(props) {
+    const [visible,setVisible] = React.useState(true);
+    const onDismiss = () => {setVisible(false)}
+    return(
+        <Snackbar
+            style={{bottom:props.index*50,margin:"auto"}}
+            visible={visible}
+            onDismiss={onDismiss}
+            action={
+                {
+                    label: "X",
+                    onPress: () => {
+                        setVisible(false);
+                    }
+                }
+            }>{props.message}</Snackbar>
+    );
 }

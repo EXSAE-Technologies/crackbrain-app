@@ -6,6 +6,7 @@ import { HomeScreen } from './components/Home';
 import { ProjectsScreen } from './components/Projects';
 import { ProfileScreen } from './components/Profile';
 import { AboutScreen } from './components/About';
+import { LoginScreen, SignupScreen } from './components/Auth';
 
 import {
   NavigationContainer,
@@ -38,6 +39,9 @@ const CombinedDarkTheme = {
 const Stack = createNativeStackNavigator();
 
 function App() {
+  React.useEffect(()=>{
+    //
+  });
   return (
     <PaperProvider theme={CombinedDefaultTheme}>
       <NavigationContainer theme={CombinedDefaultTheme}>
@@ -46,6 +50,8 @@ function App() {
           <Stack.Screen name="Profile" component={ProfileScreen} />
           <Stack.Screen name="Projects" component={ProjectsScreen} />
           <Stack.Screen name="About" component={AboutScreen} />
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="Signup" component={SignupScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </PaperProvider>
