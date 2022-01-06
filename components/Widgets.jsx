@@ -17,7 +17,7 @@ export function ButtonMenu({navigation}){
                             onPress: () => {navigation.navigate("Projects")}
                         },
                         {
-                            icon:"plus",
+                            icon:"information-outline",
                             label:"About",
                             onPress: () => {navigation.navigate("About")}
                         }
