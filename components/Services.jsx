@@ -31,12 +31,28 @@ export const deleteData = async (storage_key) => {
     }
 }
 
-export const AuthenticatedUser = (navigation) => {
+export const AuthenticatedUser = (navigation, callBack) => {
     getData("token").then((value)=>{
-        if(!value){
+        if(value == null){
             navigation.navigate("Login");
+        } else if (value == "undefined") {
+            navigation.navigate("Login");
+        } else {
+            callBack(value);
         }
     });
+}
+
+export const handleResponse = (json, successCallBack=null, noSuccess=null) => {
+    if("success" in json){
+        if(successCallBack != null){
+            successCallBack(json);
+        }
+    } else {
+        if(noSuccess != null){
+            noSuccess(json);
+        }
+    }
 }
 
 export const baseUrl = "http://localhost";

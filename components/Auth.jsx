@@ -141,7 +141,7 @@ export function LoginScreen({navigation}){
     return (
         <View style={styles.views}>
             {nots}
-            <Card>
+            <Card style={{maxWidth:425, margin:"auto"}}>
                 <Card.Title title="Login" />
                 <Card.Content>
                     <TextInput value={form.email} onChangeText={(value)=>{setForm({email:value,password:form.password})}} label="E-mail" style={styles.formTextInput} left={<TextInput.Icon name="account" />}/>
