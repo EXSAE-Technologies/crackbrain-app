@@ -11,35 +11,30 @@ export function SignupScreen({navigation}){
         email:"",
         password:""
     });
-    const [res, setRes] = React.useState({loading:false});
-    const [nots, setNots] = React.useState([])
+    const [loading, setLoading] = React.useState(false);
+    const [nots, setNots] = React.useState(null)
 
     const handleResponse = (json) => {
-        let anots = new Array();
         if("success" in json){
             if(json.success){
-                anots.push(<Snack key={0} index={0} message={json.message}/>);
-                anots.push(<Snack key={1} index={1} message="You may now login."/>);
-                setTimeout(() => {
-                    navigation.navigate("Login");
-                }, 5000);
+                storeData("token",json.data.token);
+                storeData("user_id",json.data.user_id);
+                navigation.navigate("Profile");
             } else {
-                anots.push(<Snack key={0} index={0} message="Failed to sign you up. Probably your email is already signed up or there is an internal server error."/>);
+                setNots(<BannerItem onClear={()=>{setNots(null)}} content={json.message}/>);
             }
-            setNots(anots);
         } else {
-            let anots = new Array();
-            let count = 0;
+            let message = ""
             for(const property in json){
-                anots.push(<Snack key={count} index={count} message={json[property][0]} />);
-                count = count + 1;
+                message += json[property][0]+"\n";
             }
-            setNots(anots);
+            setNots(<BannerItem onClear={()=>{setNots(null)}} content={message}/>);
         }
+        setLoading(false);
     }
 
     const signup = () => {
-        setRes({loading:true});
+        setLoading(true);
         let myheaders = new Headers()
         myheaders.append("Content-Type", "application/json");
         myheaders.append("Accept","application/json");
@@ -54,14 +49,13 @@ export function SignupScreen({navigation}){
         }).then((json)=>{
             handleResponse(json);
         }).catch((error)=>{
-            if("success" in error){
-                handleResponse(error);
-            }
-        }).finally(setRes({loading:false}));
+            handleResponse(error);
+        });
     }
 
     return (
         <View style={styles.views}>
+            {nots}
             <Card>
                 <Card.Title title="Sign Up" />
                 <Card.Content>
@@ -91,11 +85,10 @@ export function SignupScreen({navigation}){
                         left={<TextInput.Icon name="lock" />} secureTextEntry/>
                 </Card.Content>
                 <Card.Actions style={{justifyContent:"center"}}>
-                    <Button mode="contained" onPress={()=>{signup()}}>{res.loading ? <ActivityIndicator animating={true}/> : "Signup"}</Button>
-                    <Button onPress={()=>{navigation.navigate("Login")}}>Have an account? Login</Button>
+                    <Button disabled={loading} loading={loading} mode="contained" onPress={()=>{signup()}}>Signup</Button>
+                    <Button disabled={loading} onPress={()=>{navigation.navigate("Login")}}>Have an account? Login</Button>
                 </Card.Actions>
             </Card>
-            {nots ? nots : null }
             <ButtonMenu navigation={navigation} />
         </View>
     );
