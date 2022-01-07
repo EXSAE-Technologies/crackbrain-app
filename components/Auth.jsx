@@ -1,12 +1,13 @@
 import * as React from "react";
 import { View } from "react-native";
-import { Button, Card, Snackbar, TextInput } from "react-native-paper";
-import { ButtonMenu,Snack } from "./Widgets";
-import { baseUrl, styles } from "./Services";
+import { ActivityIndicator, Button, Card, Colors, TextInput } from "react-native-paper";
+import { ButtonMenu,Snack,BannerItem } from "./Widgets";
+import { baseUrl, storeData, styles } from "./Services";
 
 export function SignupScreen({navigation}){
     const [form, setForm] = React.useState({
-        username:"",
+        first_name:"",
+        last_name:"",
         email:"",
         password:""
     });
@@ -17,9 +18,13 @@ export function SignupScreen({navigation}){
         let anots = new Array();
         if("success" in json){
             if(json.success){
-                anots.push(<Snackbar>{json.message}</Snackbar>);
+                anots.push(<Snack key={0} index={0} message={json.message}/>);
+                anots.push(<Snack key={1} index={1} message="You may now login."/>);
+                setTimeout(() => {
+                    navigation.navigate("Login");
+                }, 5000);
             } else {
-                console.log(json);
+                anots.push(<Snack key={0} index={0} message="Failed to sign you up. Probably your email is already signed up or there is an internal server error."/>);
             }
             setNots(anots);
         } else {
@@ -39,7 +44,8 @@ export function SignupScreen({navigation}){
         myheaders.append("Content-Type", "application/json");
         myheaders.append("Accept","application/json");
         let request = new Request(baseUrl+"/auth/register", {method:"POST",headers:myheaders, body:JSON.stringify({
-            username:form.username,
+            first_name:form.first_name,
+            last_name:form.last_name,
             email:form.email,
             password:form.password
         })});
@@ -47,7 +53,11 @@ export function SignupScreen({navigation}){
             return response.json();
         }).then((json)=>{
             handleResponse(json);
-        }).catch((error)=>console.log(error)).finally(setRes({loading:false}));
+        }).catch((error)=>{
+            if("success" in error){
+                handleResponse(error);
+            }
+        }).finally(setRes({loading:false}));
     }
 
     return (
@@ -56,26 +66,32 @@ export function SignupScreen({navigation}){
                 <Card.Title title="Sign Up" />
                 <Card.Content>
                     <TextInput 
-                        value={form.username} 
-                        onChangeText={(value)=>{setForm({username:value,email:form.email,password:form.password})}} 
-                        label="Username" 
+                        value={form.first_name} 
+                        onChangeText={(value)=>{setForm({first_name:value,last_name:form.last_name,email:form.email,password:form.password})}} 
+                        label="First name" 
+                        style={styles.formTextInput} 
+                        left={<TextInput.Icon name="account" />}/>
+                    <TextInput 
+                        value={form.last_name} 
+                        onChangeText={(value)=>{setForm({first_name:form.first_name,last_name:value,email:form.email,password:form.password})}} 
+                        label="Last name" 
                         style={styles.formTextInput} 
                         left={<TextInput.Icon name="account" />}/>
                     <TextInput 
                         value={form.email} 
-                        onChangeText={(value)=>{setForm({email:value,username:form.username,password:form.password})}} 
+                        onChangeText={(value)=>{setForm({first_name:form.first_name,last_name:form.last_name,email:value,password:form.password})}} 
                         label="E-mail" 
                         style={styles.formTextInput} 
                         left={<TextInput.Icon name="mail" />}/>
                     <TextInput 
                         value={form.password} 
-                        onChangeText={(value)=>{setForm({password:value,username:form.username,email:form.email})}} 
+                        onChangeText={(value)=>{setForm({first_name:form.first_name,last_name:form.last_name,email:form.email,password:value})}} 
                         label="Password" 
                         style={styles.formTextInput} 
                         left={<TextInput.Icon name="lock" />} secureTextEntry/>
                 </Card.Content>
                 <Card.Actions style={{justifyContent:"center"}}>
-                    <Button mode="contained" onPress={()=>{signup()}}>Signup</Button>
+                    <Button mode="contained" onPress={()=>{signup()}}>{res.loading ? <ActivityIndicator animating={true}/> : "Signup"}</Button>
                     <Button onPress={()=>{navigation.navigate("Login")}}>Have an account? Login</Button>
                 </Card.Actions>
             </Card>
@@ -90,24 +106,48 @@ export function LoginScreen({navigation}){
         email:"",
         password:""
     });
-    const [res, setRes] = React.useState({loading:false})
+    const [loading, setLoading] = React.useState(false);
+    const [nots, setNots] = React.useState(null);
+    
+    const handleResponse = (json) => {
+        if("success" in json){
+            if(json.success){
+                storeData("token",json.data.token);
+                storeData("user_id",json.data.user_id);
+                navigation.navigate("Profile");
+            } else {
+                setNots(<BannerItem onClear={()=>{setNots(null)}} content={json.message}/>);
+            }
+        } else {
+            let message = ""
+            for(const property in json){
+                message += json[property][0]+"\n";
+            }
+            setNots(<BannerItem onClear={()=>{setNots(null)}} content={message}/>);
+        }
+        setLoading(false);
+    }
 
     const login = () => {
-        console.log(form);
-        setRes({loading: true});
-        fetch("http://localhost/auth/login",{
-            method:"POST",
-            body: JSON.stringify({
-                email: form.email,
-                password: form.password
-            })
-        }).then((response)=>{
-            console.log(response)
-            setRes({loading: false});
+        setLoading(true);
+        let myheaders = new Headers()
+        myheaders.append("Content-Type", "application/json");
+        myheaders.append("Accept","application/json");
+        let request = new Request(baseUrl+"/auth/login", {method:"POST",headers:myheaders, body:JSON.stringify({
+            email:form.email,
+            password:form.password
+        })});
+        fetch(request).then((response)=>{
+            return response.json();
+        }).then((json)=>{
+            handleResponse(json);
+        }).catch((error)=>{
+            handleResponse(error);
         });
     }
     return (
         <View style={styles.views}>
+            {nots}
             <Card>
                 <Card.Title title="Login" />
                 <Card.Content>
@@ -115,8 +155,8 @@ export function LoginScreen({navigation}){
                     <TextInput value={form.password} onChangeText={(value)=>{setForm({password:value,email:form.email})}} label="Password" style={styles.formTextInput} left={<TextInput.Icon name="lock" />} secureTextEntry/>
                 </Card.Content>
                 <Card.Actions style={{justifyContent:"center"}}>
-                    <Button mode="contained" onPress={()=>{login()}}>Login</Button>
-                    <Button onPress={()=>{navigation.navigate("Signup")}}>New? Sign up</Button>
+                    <Button disabled={loading} loading={loading} mode="contained" onPress={()=>{login()}}>Login</Button>
+                    <Button disabled={loading} onPress={()=>{navigation.navigate("Signup")}}>New? Sign up</Button>
                 </Card.Actions>
             </Card>
             <ButtonMenu navigation={navigation} />

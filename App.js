@@ -45,7 +45,7 @@ function App() {
   return (
     <PaperProvider theme={CombinedDefaultTheme}>
       <NavigationContainer theme={CombinedDefaultTheme}>
-        <Stack.Navigator initialRouteName='Profile'>
+        <Stack.Navigator initialRouteName='Login'>
           <Stack.Screen name="Home" component={HomeScreen} />
           <Stack.Screen name="Profile" component={ProfileScreen} />
           <Stack.Screen name="Projects" component={ProjectsScreen} />
