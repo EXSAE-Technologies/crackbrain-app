@@ -13,14 +13,19 @@ export function ButtonMenu({navigation}){
                     icon="menu"
                     actions={[
                         {
+                            icon:"information-outline",
+                            label:"About",
+                            onPress: () => {navigation.navigate("About")}
+                        },
+                        {
                             icon:"briefcase",
                             label:"Projects",
                             onPress: () => {navigation.navigate("Projects")}
                         },
                         {
-                            icon:"information-outline",
-                            label:"About",
-                            onPress: () => {navigation.navigate("About")}
+                            icon:"account",
+                            label:"Profile",
+                            onPress:()=>{navigation.navigate("Profile")}
                         }
                     ]}
                     onStateChange={onStateChange}/>
@@ -28,25 +33,6 @@ export function ButtonMenu({navigation}){
         </Provider>
     )
 }
-/*
-export function Snack(props) {
-    const [visible,setVisible] = React.useState(true);
-    const onDismiss = () => {setVisible(false)}
-    return(
-        <Snackbar
-            style={{bottom:props.index*50+70,margin:"auto"}}
-            visible={visible}
-            onDismiss={onDismiss}
-            action={
-                {
-                    label: "X",
-                    onPress: () => {
-                        setVisible(false);
-                    }
-                }
-            }>{props.message}</Snackbar>
-    );
-}*/
 
 function Item(props){
     const [visible,setVisible] = React.useState(true);

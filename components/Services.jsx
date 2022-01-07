@@ -21,11 +21,22 @@ export const getData = async (storage_key) => {
     }
 }
 
-export const AuthenticatedUser = () => {
-    const token = getData("token");
-    if (!token) {
-        console.log("please log in");
+export const deleteData = async (storage_key) => {
+    try {
+        await AsyncStorage.removeItem(storage_key);
+        return true;
+    } catch (e) {
+        console.log(e);
+        return false;
     }
+}
+
+export const AuthenticatedUser = (navigation) => {
+    getData("token").then((value)=>{
+        if(!value){
+            navigation.navigate("Login");
+        }
+    });
 }
 
 export const baseUrl = "http://localhost";

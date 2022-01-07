@@ -1,23 +1,32 @@
 import React, { useEffect, useState } from "react";
 import { View } from "react-native";
 import { ButtonMenu } from "./Widgets";
-import { AuthenticatedUser, getData } from "./Services";
+import { styles, deleteData, AuthenticatedUser } from "./Services";
+import { Avatar, Button, Card } from "react-native-paper";
+import profile_placeholder from "../assets/blank-profile.png";
 
 export function ProfileScreen({navigation}) {
-    //const token = getData("token");
     useEffect(()=>{
-        //AuthenticatedUser();
-        getData("token").then((value)=>{
-            if(value){
-                console.log(value);
-            } else {
-                console.log("Please log in");
-                navigation.navigate("Login");
-            }
-        });
+        AuthenticatedUser(navigation);
     });
     return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+      <View style={styles.views}>
+          <Card style={{maxWidth: 320, margin: "auto"}}>
+              <Card.Title 
+                title="Funduluka Shangala" 
+                subtitle="@fshangala"
+                left={(props)=><Avatar.Icon {...props} icon="account" />}/>
+            <Card.Cover source={profile_placeholder}/>
+            <Card.Content></Card.Content>
+            <Card.Actions>
+                <Button
+                    onPress={()=>{
+                        deleteData("token");
+                        navigation.navigate("Login");
+                    }}>Log out</Button>
+                <Button>Edit</Button>
+            </Card.Actions>
+          </Card>
         <ButtonMenu navigation={navigation} />
       </View>
     );
