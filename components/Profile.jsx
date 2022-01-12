@@ -1,34 +1,32 @@
 import React, { useEffect, useState } from "react";
 import { View } from "react-native";
 import { ButtonMenu } from "./Widgets";
-import { styles, deleteData, AuthenticatedUser, fetchUserData } from "./Services";
-import { Avatar, Button, Card } from "react-native-paper";
+import { styles, deleteData, AuthenticatedUser, fetchUserData, baseUrl } from "./Services";
+import { Avatar, Button, Card, Text } from "react-native-paper";
 import profile_placeholder from "../assets/blank-profile.png";
 import { Instagram } from "react-content-loader";
 
 export function ProfileScreen({navigation}) {
     const [loading,setLoading] = useState(false);
+    const [user,setUser] = useState(null);
+
     useEffect(()=>{
         AuthenticatedUser(navigation,(token)=>{
-            //fetchUserData(token);
+            if(user == null){
+                fetchUserData(token);
+            }
         });
     });
 
     const handleResponse = (json) => {
         if("success" in json){
             if(json.success){
-                storeData("token",json.data.token);
-                storeData("user_id",json.data.user_id);
-                navigation.navigate("Profile");
+                setUser(json.data);
             } else {
-                setNots(<BannerItem onClear={()=>{setNots(null)}} content={json.message}/>);
+                console.log(json);
             }
         } else {
-            let message = ""
-            for(const property in json){
-                message += json[property][0]+"\n";
-            }
-            setNots(<BannerItem onClear={()=>{setNots(null)}} content={message}/>);
+            console.log(json);
         }
         setLoading(false);
     }
@@ -51,22 +49,24 @@ export function ProfileScreen({navigation}) {
     
     return (
       <View style={styles.views}>
+          {loading?<Instagram />: (user == null) ? <Text>No user to show</Text> :
           <Card style={{maxWidth: 320, margin: "auto"}}>
               <Card.Title 
-                title="Funduluka Shangala" 
-                subtitle="@fshangala"
+                title={`${user.first_name} ${user.last_name}`}
+                subtitle={user.email}
                 left={(props)=><Avatar.Icon {...props} icon="account" />}/>
             <Card.Cover source={profile_placeholder}/>
             <Card.Content></Card.Content>
             <Card.Actions>
                 <Button
                     onPress={()=>{
+                        setLoading(true);
                         deleteData("token");
-                        navigation.navigate("Login");
+                        setLoading(false);
                     }}>Log out</Button>
                 <Button>Edit</Button>
             </Card.Actions>
-          </Card>
+          </Card>}
         <ButtonMenu navigation={navigation} />
       </View>
     );
