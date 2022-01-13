@@ -1,5 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import React from "react";
 import { StyleSheet } from "react-native";
+import { DataTable } from "react-native-paper";
 
 export const storeData = async (storage_key, value) => {
     try{
@@ -43,17 +45,51 @@ export const AuthenticatedUser = (navigation, callBack) => {
     });
 }
 
-export const handleResponse = (json, successCallBack=null, noSuccess=null) => {
-    if("success" in json){
-        if(successCallBack != null){
-            successCallBack(json);
-        }
-    } else {
-        if(noSuccess != null){
-            noSuccess(json);
-        }
-    }
+const optionsPerPage = [2, 3, 4];
+
+export const TabularData = () => {
+  const [page, setPage] = React.useState(0);
+  const [itemsPerPage, setItemsPerPage] = React.useState(optionsPerPage[0]);
+
+  React.useEffect(() => {
+    setPage(0);
+  }, [itemsPerPage]);
+
+  return (
+    <DataTable>
+      <DataTable.Header>
+        <DataTable.Title>Dessert</DataTable.Title>
+        <DataTable.Title numeric>Calories</DataTable.Title>
+        <DataTable.Title numeric>Fat</DataTable.Title>
+      </DataTable.Header>
+
+      <DataTable.Row>
+        <DataTable.Cell>Frozen yogurt</DataTable.Cell>
+        <DataTable.Cell numeric>159</DataTable.Cell>
+        <DataTable.Cell numeric>6.0</DataTable.Cell>
+      </DataTable.Row>
+
+      <DataTable.Row>
+        <DataTable.Cell>Ice cream sandwich</DataTable.Cell>
+        <DataTable.Cell numeric>237</DataTable.Cell>
+        <DataTable.Cell numeric>8.0</DataTable.Cell>
+      </DataTable.Row>
+
+      <DataTable.Pagination
+        page={page}
+        numberOfPages={3}
+        onPageChange={(page) => setPage(page)}
+        label="1-2 of 6"
+        optionsPerPage={optionsPerPage}
+        itemsPerPage={itemsPerPage}
+        setItemsPerPage={setItemsPerPage}
+        showFastPagination
+        optionsLabel={'Rows per page'}
+      />
+    </DataTable>
+  );
 }
+
 
 export class Exsae {
     constructor(){
@@ -75,6 +111,28 @@ export class Exsae {
         }).catch((error)=>{
             this.handleResponse(error,successCallBack,noSuccess);
         });
+    }
+
+    getOpenProjects(token,successCallBack,noSuccess){
+        let myheaders = new Headers()
+        myheaders.append("Content-Type", "application/json");
+        myheaders.append("Accept","application/json");
+        myheaders.append("Authorization",token);
+        let request = {method:"GET",headers:myheaders};
+        this.sendRequest("/cb/projects/open",request,successCallBack,noSuccess);
+    }
+
+    createProject(token,form,successCallBack,noSuccess){
+        let myheaders = new Headers()
+        myheaders.append("Content-Type", "application/json");
+        myheaders.append("Accept","application/json");
+        myheaders.append("Authorization",token);
+        let request = {
+            method: "POST",
+            headers: myheaders, 
+            body: JSON.stringify(form)
+        };
+        this.sendRequest("/cb/projects/create",request,successCallBack,noSuccess);
     }
 
     getAuthenticatedUser(token,successCallBack,noSuccess){

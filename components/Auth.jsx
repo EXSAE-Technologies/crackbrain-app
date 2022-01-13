@@ -2,7 +2,7 @@ import * as React from "react";
 import { View } from "react-native";
 import { ActivityIndicator, Button, Card, Colors, TextInput } from "react-native-paper";
 import { ButtonMenu,BannerItem } from "./Widgets";
-import { storeData, Exsae, styles } from "./Services";
+import { storeData, Exsae, styles, AuthenticatedUser } from "./Services";
 
 var exsae = new Exsae();
 
