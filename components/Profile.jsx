@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View } from "react-native";
 import { ButtonMenu } from "./Widgets";
-import { styles, deleteData, AuthenticatedUser, fetchUserData, baseUrl } from "./Services";
+import { styles, deleteData, AuthenticatedUser, baseUrl } from "./Services";
 import { Avatar, Button, Card, Text } from "react-native-paper";
 import profile_placeholder from "../assets/blank-profile.png";
 import { Instagram } from "react-content-loader";
@@ -49,7 +49,7 @@ export function ProfileScreen({navigation}) {
     
     return (
       <View style={styles.views}>
-          {loading?<Instagram />: (user == null) ? <Text>No user to show</Text> :
+          {loading?<Instagram />: (user == null) ? <Text>No user to show!</Text> :
           <Card style={{maxWidth: 320, margin: "auto"}}>
               <Card.Title 
                 title={`${user.first_name} ${user.last_name}`}
@@ -61,8 +61,9 @@ export function ProfileScreen({navigation}) {
                 <Button
                     onPress={()=>{
                         setLoading(true);
-                        deleteData("token");
-                        setLoading(false);
+                        deleteData("token").then((value)=>{
+                            setLoading(false);
+                        });
                     }}>Log out</Button>
                 <Button>Edit</Button>
             </Card.Actions>

@@ -55,6 +55,61 @@ export const handleResponse = (json, successCallBack=null, noSuccess=null) => {
     }
 }
 
+export class Exsae {
+    constructor(){
+        this.baseUrl = "http://localhost"
+    }
+
+    handleResponse(json,successCallBack,noSuccess){
+        if("success" in json){
+            successCallBack(json);
+        } else {
+            noSuccess(json);
+        }
+    }
+
+    sendRequest(path,conf,successCallBack,noSuccess){
+        let request = new Request(this.baseUrl+path,conf);
+        fetch(request).then((response)=>response.json()).then((json)=>{
+            this.handleResponse(json,successCallBack,noSuccess);
+        }).catch((error)=>{
+            this.handleResponse(error,successCallBack,noSuccess);
+        });
+    }
+
+    login(form,successCallBack,noSuccess){
+        let myheaders = new Headers()
+        myheaders.append("Content-Type", "application/json");
+        myheaders.append("Accept","application/json");
+        let request = {
+            method: "POST",
+            headers: myheaders, 
+            body: JSON.stringify({
+                email:form.email,
+                password:form.password
+            })
+        };
+        this.sendRequest("/auth/login",request,successCallBack,noSuccess);
+    }
+
+    signup(form,successCallBack,noSuccess){
+        let myheaders = new Headers();
+        myheaders.append("Content-Type", "application/json");
+        myheaders.append("Accept","application/json");
+        let request = {
+            method: "POST",
+            headers: myheaders, 
+            body: JSON.stringify({
+                first_name:form.first_name,
+                last_name:form.last_name,
+                email:form.email,
+                password:form.password
+            })
+        };
+        this.sendRequest("/auth/register",request,successCallBack,noSuccess);
+    }
+}
+
 export const baseUrl = "http://localhost";
 
 export const styles = StyleSheet.create({
