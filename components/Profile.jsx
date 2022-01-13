@@ -1,72 +1,61 @@
 import React, { useEffect, useState } from "react";
 import { View } from "react-native";
 import { ButtonMenu } from "./Widgets";
-import { styles, deleteData, AuthenticatedUser, fetchUserData } from "./Services";
-import { Avatar, Button, Card } from "react-native-paper";
+import { styles, deleteData, AuthenticatedUser, baseUrl, Exsae, TabularData } from "./Services";
+import { Avatar, Button, Card, DataTable, Text } from "react-native-paper";
 import profile_placeholder from "../assets/blank-profile.png";
 import { Instagram } from "react-content-loader";
 
+var exsae = new Exsae();
+
 export function ProfileScreen({navigation}) {
     const [loading,setLoading] = useState(false);
+    const [user,setUser] = useState(null);
+
     useEffect(()=>{
         AuthenticatedUser(navigation,(token)=>{
-            //fetchUserData(token);
+            if(user == null){
+                setLoading(true);
+                exsae.getAuthenticatedUser(token,(json)=>{
+                    if(json.success){
+                        setUser(json.data);
+                    } else {
+                        console.log(json);
+                    }
+                    setLoading(false);
+                },(json)=>{
+                    console.log(json);
+                    setLoading(false);
+                });
+            }
         });
     });
-
-    const handleResponse = (json) => {
-        if("success" in json){
-            if(json.success){
-                storeData("token",json.data.token);
-                storeData("user_id",json.data.user_id);
-                navigation.navigate("Profile");
-            } else {
-                setNots(<BannerItem onClear={()=>{setNots(null)}} content={json.message}/>);
-            }
-        } else {
-            let message = ""
-            for(const property in json){
-                message += json[property][0]+"\n";
-            }
-            setNots(<BannerItem onClear={()=>{setNots(null)}} content={message}/>);
-        }
-        setLoading(false);
-    }
-
-    const fetchUserData = (token) => {
-        setLoading(true);
-        let myheaders = new Headers()
-        myheaders.append("Content-Type", "application/json");
-        myheaders.append("Accept","application/json");
-        myheaders.append("Authorization",token);
-        let request = new Request(baseUrl+"/auth/user", {method:"GET",headers:myheaders});
-        fetch(request).then((response)=>{
-            return response.json();
-        }).then((json)=>{
-            handleResponse(json);
-        }).catch((error)=>{
-            handleResponse(error);
-        });
-    }
     
     return (
       <View style={styles.views}>
-          <Card style={{maxWidth: 320, margin: "auto"}}>
-              <Card.Title 
-                title="Funduluka Shangala" 
-                subtitle="@fshangala"
-                left={(props)=><Avatar.Icon {...props} icon="account" />}/>
-            <Card.Cover source={profile_placeholder}/>
-            <Card.Content></Card.Content>
-            <Card.Actions>
-                <Button
-                    onPress={()=>{
-                        deleteData("token");
-                        navigation.navigate("Login");
-                    }}>Log out</Button>
-                <Button>Edit</Button>
-            </Card.Actions>
-          </Card>
+          {loading?<Instagram />: (user == null) ? <Text>No user to show!</Text> :
+          <View>
+            <Card style={{minWidth:300, margin: "auto"}}>
+                <Card.Title 
+                    title={`${user.first_name} ${user.last_name}`}
+                    subtitle={user.email}
+                    left={(props)=><Avatar.Icon {...props} icon="account" />}/>
+                <Card.Cover source={profile_placeholder}/>
+                <Card.Content>
+                    <Button mode="contained" icon="plus" onPress={()=>{navigation.navigate("CreateProject")}}>Post a Project</Button>
+                </Card.Content>
+                <Card.Actions>
+                    <Button
+                        onPress={()=>{
+                            setLoading(true);
+                            deleteData("token").then((value)=>{
+                                setLoading(false);
+                            });
+                        }}>Log out</Button>
+                    <Button>Edit</Button>
+                </Card.Actions>
+            </Card>
+          </View>}
         <ButtonMenu navigation={navigation} />
       </View>
     );

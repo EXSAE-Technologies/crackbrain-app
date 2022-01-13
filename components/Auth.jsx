@@ -1,8 +1,10 @@
 import * as React from "react";
 import { View } from "react-native";
 import { ActivityIndicator, Button, Card, Colors, TextInput } from "react-native-paper";
-import { ButtonMenu,Snack,BannerItem } from "./Widgets";
-import { baseUrl, storeData, styles } from "./Services";
+import { ButtonMenu,BannerItem } from "./Widgets";
+import { storeData, Exsae, styles, AuthenticatedUser } from "./Services";
+
+var exsae = new Exsae();
 
 export function SignupScreen({navigation}){
     const [form, setForm] = React.useState({
@@ -14,42 +16,38 @@ export function SignupScreen({navigation}){
     const [loading, setLoading] = React.useState(false);
     const [nots, setNots] = React.useState(null)
 
-    const handleResponse = (json) => {
-        if("success" in json){
+    const signup = () => {
+        setLoading(true);
+        exsae.signup(form,(json)=>{
             if(json.success){
-                storeData("token",json.data.token);
-                storeData("user_id",json.data.user_id);
-                navigation.navigate("Profile");
+                exsae.login(form,(json)=>{
+                    if(json.success){
+                        storeData("token",json.data.token).then((success)=>{
+                            navigation.navigate("Profile");
+                        });
+                    } else {
+                        setNots(<BannerItem onClear={()=>{setNots(null)}} content={json.message}/>);
+                    }
+                    setLoading(false);
+                },(json)=>{
+                    let message = ""
+                    for(const property in json){
+                        message += json[property][0]+"\n";
+                    }
+                    setNots(<BannerItem onClear={()=>{setNots(null)}} content={message}/>);
+                    setLoading(false);
+                });
             } else {
                 setNots(<BannerItem onClear={()=>{setNots(null)}} content={json.message}/>);
+                setLoading(false);
             }
-        } else {
+        },(json)=>{
             let message = ""
             for(const property in json){
                 message += json[property][0]+"\n";
             }
             setNots(<BannerItem onClear={()=>{setNots(null)}} content={message}/>);
-        }
-        setLoading(false);
-    }
-
-    const signup = () => {
-        setLoading(true);
-        let myheaders = new Headers()
-        myheaders.append("Content-Type", "application/json");
-        myheaders.append("Accept","application/json");
-        let request = new Request(baseUrl+"/auth/register", {method:"POST",headers:myheaders, body:JSON.stringify({
-            first_name:form.first_name,
-            last_name:form.last_name,
-            email:form.email,
-            password:form.password
-        })});
-        fetch(request).then((response)=>{
-            return response.json();
-        }).then((json)=>{
-            handleResponse(json);
-        }).catch((error)=>{
-            handleResponse(error);
+            setLoading(false);
         });
     }
 
@@ -101,43 +99,28 @@ export function LoginScreen({navigation}){
     });
     const [loading, setLoading] = React.useState(false);
     const [nots, setNots] = React.useState(null);
-    
-    const handleResponse = (json) => {
-        if("success" in json){
+
+    const login = () => {
+        setLoading(true);
+        exsae.login(form,(json)=>{
             if(json.success){
-                storeData("token",json.data.token);
-                storeData("user_id",json.data.user_id);
-                navigation.navigate("Profile");
+                storeData("token",json.data.token).then((success)=>{
+                    navigation.navigate("Profile");
+                });
             } else {
                 setNots(<BannerItem onClear={()=>{setNots(null)}} content={json.message}/>);
             }
-        } else {
+            setLoading(false);
+        },(json)=>{
             let message = ""
             for(const property in json){
                 message += json[property][0]+"\n";
             }
             setNots(<BannerItem onClear={()=>{setNots(null)}} content={message}/>);
-        }
-        setLoading(false);
-    }
-
-    const login = () => {
-        setLoading(true);
-        let myheaders = new Headers()
-        myheaders.append("Content-Type", "application/json");
-        myheaders.append("Accept","application/json");
-        let request = new Request(baseUrl+"/auth/login", {method:"POST",headers:myheaders, body:JSON.stringify({
-            email:form.email,
-            password:form.password
-        })});
-        fetch(request).then((response)=>{
-            return response.json();
-        }).then((json)=>{
-            handleResponse(json);
-        }).catch((error)=>{
-            handleResponse(error);
+            setLoading(false);
         });
     }
+
     return (
         <View style={styles.views}>
             {nots}
