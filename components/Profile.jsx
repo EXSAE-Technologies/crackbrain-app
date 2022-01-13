@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { View } from "react-native";
 import { ButtonMenu } from "./Widgets";
-import { styles, deleteData, AuthenticatedUser, baseUrl } from "./Services";
+import { styles, deleteData, AuthenticatedUser, baseUrl, Exsae } from "./Services";
 import { Avatar, Button, Card, Text } from "react-native-paper";
 import profile_placeholder from "../assets/blank-profile.png";
 import { Instagram } from "react-content-loader";
+
+var exsae = new Exsae();
 
 export function ProfileScreen({navigation}) {
     const [loading,setLoading] = useState(false);
@@ -13,39 +15,21 @@ export function ProfileScreen({navigation}) {
     useEffect(()=>{
         AuthenticatedUser(navigation,(token)=>{
             if(user == null){
-                fetchUserData(token);
+                setLoading(true);
+                exsae.getAuthenticatedUser(token,(json)=>{
+                    if(json.success){
+                        setUser(json.data);
+                    } else {
+                        console.log(json);
+                    }
+                    setLoading(false);
+                },(json)=>{
+                    console.log(json);
+                    setLoading(false);
+                });
             }
         });
     });
-
-    const handleResponse = (json) => {
-        if("success" in json){
-            if(json.success){
-                setUser(json.data);
-            } else {
-                console.log(json);
-            }
-        } else {
-            console.log(json);
-        }
-        setLoading(false);
-    }
-
-    const fetchUserData = (token) => {
-        setLoading(true);
-        let myheaders = new Headers()
-        myheaders.append("Content-Type", "application/json");
-        myheaders.append("Accept","application/json");
-        myheaders.append("Authorization",token);
-        let request = new Request(baseUrl+"/auth/user", {method:"GET",headers:myheaders});
-        fetch(request).then((response)=>{
-            return response.json();
-        }).then((json)=>{
-            handleResponse(json);
-        }).catch((error)=>{
-            handleResponse(error);
-        });
-    }
     
     return (
       <View style={styles.views}>

@@ -77,6 +77,15 @@ export class Exsae {
         });
     }
 
+    getAuthenticatedUser(token,successCallBack,noSuccess){
+        let myheaders = new Headers()
+        myheaders.append("Content-Type", "application/json");
+        myheaders.append("Accept","application/json");
+        myheaders.append("Authorization",token);
+        let request = {method:"GET",headers:myheaders};
+        this.sendRequest("/auth/user",request,successCallBack,noSuccess);
+    }
+
     login(form,successCallBack,noSuccess){
         let myheaders = new Headers()
         myheaders.append("Content-Type", "application/json");
