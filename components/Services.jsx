@@ -122,6 +122,15 @@ export class Exsae {
         this.sendRequest("/cb/projects/open",request,successCallBack,noSuccess);
     }
 
+    getProject(token,id,successCallBack,noSuccess){
+        let myheaders = new Headers()
+        myheaders.append("Content-Type", "application/json");
+        myheaders.append("Accept","application/json");
+        myheaders.append("Authorization",token);
+        let request = {method:"GET",headers:myheaders};
+        this.sendRequest("/cb/projects/"+id,request,successCallBack,noSuccess);
+    }
+
     createProject(token,form,successCallBack,noSuccess){
         let myheaders = new Headers()
         myheaders.append("Content-Type", "application/json");

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { FlatList, SafeAreaView, View } from "react-native";
+import { FlatList, SafeAreaView, View, Text } from "react-native";
 import { ActivityIndicator, Avatar, Button, Card, List, TextInput } from "react-native-paper";
 import { AuthenticatedUser, Exsae, styles } from "./Services";
 import { BannerItem, ButtonMenu } from "./Widgets";
@@ -8,15 +8,17 @@ var exsae = new Exsae();
 
 export function ProjectsScreen({navigation}) {
     const [loading,setLoading] = useState(false);
+    const [reload,setReload] = useState(true);
     const [projects,setProjects] = useState(null);
 
     useEffect(()=>{
       AuthenticatedUser(navigation, (token)=>{
         if(projects == null){
+          if(reload){
             setLoading(true);
+            setReload(false);
             exsae.getOpenProjects(token,(json)=>{
                 if(json.success){
-                    console.log(json);
                     setProjects(json.data);
                 } else {
                     console.log(json);
@@ -26,6 +28,7 @@ export function ProjectsScreen({navigation}) {
                 console.log(json);
                 setLoading(false);
             });
+          }
         }
       });
     })
@@ -34,8 +37,9 @@ export function ProjectsScreen({navigation}) {
       return(
       <List.Item
           title={item.title}
-          description="Project Description"
-          left={props => <List.Icon {...props} icon="briefcase" />} />)
+          description={(item.detail.length>60)?item.detail.substring(0,60)+"...":item.detail}
+          left={props => <List.Icon {...props} icon="briefcase" />} 
+          onPress={()=>{navigation.navigate("ViewProject",{id:item.id})}}/>)
     }
     
     return (
@@ -125,5 +129,38 @@ export function CreateProjectScreen({navigation}){
       </Card>
       <ButtonMenu navigation={navigation} />
     </View>
+  )
+}
+
+export function ViewProjectScreen({navigation}){
+  const [loading,setLoading] = useState(false);
+  const [reload,setReload] = useState(true);
+  const [project,setProject] = useState(null);
+
+  useEffect(()=>{
+    AuthenticatedUser(navigation, (token)=>{
+      console.log(navigation);
+      if(project == null){
+        if(reload){
+          setLoading(true);
+          setReload(false);
+          exsae.getProject(token,1,(json)=>{
+              if(json.success){
+                  console.log(json.data)
+                  setProject(json.data);
+              } else {
+                  console.log(json);
+              }
+              setLoading(false);
+          },(json)=>{
+              console.log(json);
+              setLoading(false);
+          });
+        }
+      }
+    });
+  })
+  return(
+    <View style={styles.views}></View>
   )
 }

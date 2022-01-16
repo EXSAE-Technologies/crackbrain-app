@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { HomeScreen } from './components/Home';
-import { CreateProjectScreen, ProjectsScreen } from './components/Projects';
+import { CreateProjectScreen, ProjectsScreen, ViewProjectScreen } from './components/Projects';
 import { ProfileScreen } from './components/Profile';
 import { AboutScreen } from './components/About';
 import { LoginScreen, SignupScreen } from './components/Auth';
@@ -50,6 +50,7 @@ function App() {
           <Stack.Screen name="Profile" component={ProfileScreen} />
           <Stack.Screen name="Projects" component={ProjectsScreen} />
           <Stack.Screen name="CreateProject" component={CreateProjectScreen} />
+          <Stack.Screen name="ViewProject" component={ViewProjectScreen} />
           <Stack.Screen name="About" component={AboutScreen} />
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="Signup" component={SignupScreen} />
